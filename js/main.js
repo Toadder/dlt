@@ -101,11 +101,99 @@ function offset(el) {
     scrollLeft = window.pageXOffset || document.documentElement.scrollLeft,
     scrollTop = window.pageYOffset || document.documentElement.scrollTop;
   return { top: rect.top + scrollTop, left: rect.left + scrollLeft };
-
 }
 
+function getScrollPercent(el) {
+  return (el.scrollLeft/(el.scrollWidth-el.offsetWidth))*100;
+}
+
+var isMobile = {
+  Android: function () {
+    return navigator.userAgent.match(/Android/i);
+  },
+  BlackBerry: function () {
+    return navigator.userAgent.match(/BlackBerry/i);
+  },
+  iOS: function () {
+    return navigator.userAgent.match(/iPhone|iPad|iPod/i);
+  },
+  Opera: function () {
+    return navigator.userAgent.match(/Opera Mini/i);
+  },
+  Windows: function () {
+    return (
+      navigator.userAgent.match(/IEMobile/i) ||
+      navigator.userAgent.match(/WPDesktop/i)
+    );
+  },
+  any: function () {
+    return (
+      isMobile.Android() ||
+      isMobile.BlackBerry() ||
+      isMobile.iOS() ||
+      isMobile.Opera() ||
+      isMobile.Windows()
+    );
+  },
+};
+
+function formAddError(el) {
+  el.classList.add('_error');
+  el.parentElement.classList.add('_error');
+}
+
+function formRemoveError(el) {
+  el.classList.remove('_error');
+  el.parentElement.classList.remove('_error');
+}
+
+function emailTest(input) {
+  const re =
+    /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  return re.test(input.value);
+}
 window.onload = function(e) {
 	ymap();
+
+	// Form send
+	const forms = document.querySelectorAll('form');
+	for (var i = 0; i < forms.length; i++) {
+		form = forms[i];
+
+		form.addEventListener('submit', formSend);
+	}
+
+	async function formSend(e) {
+		e.preventDefault();
+
+		let error = formValidate(form);
+		let formData = new FormData(form);
+
+		if(error === 0) {
+			// !ДОДЕЛАТЬ ОТПРАВКУ ФОРМЫ!
+		}
+	}
+
+	function formValidate(form) {
+	  let error = 0;
+	  let formReq = form.querySelectorAll('._req');
+
+	  for (var i = 0; i < formReq.length; i++) {
+	    const input = formReq[i];
+	    formRemoveError(input);
+
+	    if(input.classList.contains('_email')) {
+	    	if(!emailTest(input)) {
+	    		formAddError(input);
+	    		error++;
+	    	}
+	    } else if(input.value == '') {
+	    	formAddError(input);
+	    	error++;
+	    }
+	  }
+	}
+
 
 	// Anim Items
 	const animItems = document.querySelectorAll('._anim-item');
@@ -157,19 +245,44 @@ window.onload = function(e) {
 		}
 	});
 
-	// Intro slider
+	// Table fill
+	const tableComparison = document.querySelector('.comparison__table');
+	const fillComparison = document.querySelector('.comparison__fill');
+	tableComparison.addEventListener('scroll', (e) => {
+	  fillComparison.style.width = getScrollPercent(tableComparison) + '%';
+	});
+
+	// Field's content appearing
+	const fieldItems = document.querySelectorAll('.slider-field__slide');
+	if(isMobile.any()) {
+		for (let i = 0; i < fieldItems.length; i++) {
+			const fieldItem = fieldItems[i];
+			fieldItem.addEventListener('click', function(e) {
+				fieldItem.querySelector('.slider-field__content').classList.toggle('_active');
+			});
+		}
+	}
+  
+
+	// Sliders
 	let introSlider = new Swiper('.slider-intro', {
 		slidesPerView: 1.7,
 		speed: 800, 
-		loop: true,
 		autoHeight: true,
 		spaceBetween: 38,
+		loop: true,
 
 		// Navigation 
 		navigation : {
 			nextEl: '.intro__next',
     		prevEl: '.intro__prev',
 		},
+
+		pagination: {
+			type: 'progressbar',
+			el: '.intro__progress',
+		},
+
 
 		breakpoints: {
 		   // when window width is >= 640px
@@ -194,13 +307,39 @@ window.onload = function(e) {
 				let totalCount = slider.slides.length - slider.loopedSlides*2;
 				totalSlide.innerHTML = totalCount < 10 ? ('0' + totalCount) : totalCount;
 			},
-			slideChange: function(slider) {
-				let progressLine = document.querySelector('.intro__fill');
-				let totalCount = slider.slides.length - slider.loopedSlides*2;
-				progressLine.style.width = `${(slider.realIndex + 1) / totalCount * 100}%`;
-			},
 		}
 	});
+	if(window.innerWidth < 942) {
+		// Field slider 
+		let fieldSlider = new Swiper('.slider-field', {
+			slidesPerView: 2.5,
+			autoHeight: true,
+			speed: 800, 
+			freeMode: true,
+
+			pagination: {
+				type: 'progressbar',
+				el: '.field__progress',
+			},
+
+			// Events
+			on: {
+				init: function(slider) {
+					let totalSlide = document.querySelector('.field__total'); 
+					let totalCount = slider.slides.length;
+					totalSlide.innerHTML = totalCount < 10 ? ('0' + totalCount) : totalCount;
+				},
+			},
+			breakpoints: {
+			   320: {
+			   	slidesPerView: 1.27,
+			   },
+			   568: {
+			   	slidesPerView: 2.5,
+			   },
+	 	 	},
+		});
+	}
 
 };
 
