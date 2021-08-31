@@ -23,6 +23,7 @@ function _addClass(array, addedClass) {
   for (let el of array) el.classList.add(addedClass);
 }
 
+// Changed
 function ymap() {
   let sectionMap = document.querySelector(".map");
 
@@ -33,7 +34,7 @@ function ymap() {
     ymaps.ready(function () {
       
       let map = new ymaps.Map("ymap", {
-        center: [55.965080685980936,37.82625693904612],
+        center: [55.960956991296946,37.81837699222734],
         zoom: 14,
         controls: ["zoomControl"],
         behaviors: ["drag"],
@@ -41,7 +42,7 @@ function ymap() {
 
       // Placemark
       let placemark = new ymaps.Placemark(
-        [55.9653695290496,37.80119437801096],
+        [55.962130528361996,37.79483330571078],
         {
           // Hint
           hintContent: "DLT",
@@ -57,11 +58,11 @@ function ymap() {
       function onResizeMap() {
         if (window.innerWidth < '576') { 
           //Set New center
-          map.setCenter([55.96366845829584,37.79828198840124]);
+          map.setCenter([55.959609278970966,37.79835593251573]);
           } else if(window.innerWidth < '942') {
-            map.setCenter([55.96366845829584,37.81817409752407]);
+            map.setCenter([55.96124586527455,37.80713317203691]);
           } else {
-            map.setCenter([55.965080685980936,37.82625693904612]);
+            map.setCenter([55.960956991296946,37.81837699222734]);
         }
       } onResizeMap();
 
@@ -220,10 +221,6 @@ function initRange(slider, minRange, maxRange) {
   }
 window.onload = function(e) {
 	ymap();
-
-	let lazyLoadInstance = new LazyLoad({
-  	elements_selector: '.lazy',
-	});
 
 	const video = document.querySelector('.slider-material__video video');
 	const videoDuration = video.duration * 1000;
@@ -508,6 +505,7 @@ window.onload = function(e) {
 	}
 
 	// Calculator
+	// Changed
 	const priceBtn = document.querySelector('button.price__btn');
 	priceBtn.addEventListener('click', function() {
 		const input = document.querySelector('.radios-price__radio input:checked');
@@ -525,23 +523,23 @@ window.onload = function(e) {
 		document.querySelector('.count-price__value').innerHTML = costPiece.toString().replace(/(\d)(?=(\d{3})+$)/g, '$1 ') + ' ₽';
 	});
 
+	// CHANGED
 	let anchorLinks = document.querySelectorAll("a._anchor-scroll");
 	if (anchorLinks.length) {
-	  anchorLinks.forEach(link => {
-	    link.addEventListener('click', (e) => {
-	      e.preventDefault();
+	  $("a._anchor-scroll").on("click", function(e){
+		    e.preventDefault();
+		    burger.classList.remove('_active');
+		    menu.classList.remove('_active');
+		    $('body').removeClass('_lock');
 
-        const blockID = link.getAttribute('href');
-        burger.classList.remove('_active');
-        menu.classList.remove('_active');
-        document.body.classList.remove('_lock');
+		    let anchor = $(this).attr('href');
+		    $('html, body').stop().animate({
+		        scrollTop: $(anchor).offset().top - $('.header').height(),
+		    }, 1000);
 
-        document.querySelector(blockID).scrollIntoView({
-          behavior: "smooth",
-          block: "center",
-        });
-      });
-    });
+
+		    
+		});
   }
 	
 };
