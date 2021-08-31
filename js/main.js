@@ -221,6 +221,10 @@ function initRange(slider, minRange, maxRange) {
 window.onload = function(e) {
 	ymap();
 
+	let lazyLoadInstance = new LazyLoad({
+  	elements_selector: '.lazy',
+	});
+
 	const video = document.querySelector('.slider-material__video video');
 	const videoDuration = video.duration * 1000;
 	const videoSlide = document.querySelector('.slider-material__slide._has-video');
